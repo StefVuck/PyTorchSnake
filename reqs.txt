@@ -1,0 +1,7 @@
+Env pygame_env:
+
+conda create -n pygame_env
+conda activate pygame_env
+pip install pygame
+pip install torch torchvision
+pip install matplotlib ipython
