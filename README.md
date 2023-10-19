@@ -22,5 +22,5 @@ $` Q_{new} = r + \gamma * Q_{next\_state} `$ where r is the most immediate rewar
 
 ##### Stretch Goals:
 - Create a way for the model to play without using the comparatively slow pygame
-- Use cuda tp use the GPU for processiong, hopefully with the last point making 1000 generations not take 4+ hours
+- Use cuda to use the GPU for processiong, hopefully with the last point making 1000 generations not take 4+ hours
 - 10,000 generations of learning for a few different parameters?
