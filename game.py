@@ -25,8 +25,8 @@ Point = namedtuple('Point', 'x, y')
 # rgb colors
 WHITE = (255, 255, 255)
 RED = (200,0,0)
-BLUE1 = (0, 0, 255)
-BLUE2 = (0, 100, 255)
+BLUE1 = (153, 153, 255)
+BLUE2 = (153, 253, 255)
 BLACK = (0,0,0)
 
 BLOCK_SIZE = 20
@@ -84,13 +84,13 @@ class SnakeGameML:
         game_over = False
         if self.is_collision() or self.move_iter > 70*len(self.snake):  # Will "Time Out" if no productive moves are made.
             game_over = True
-            reward -= 10
-            return game_over, self.score
+            reward = -10
+            return reward, game_over, self.score
             
         # 4. place new food or just move
         if self.head == self.food:
             self.score += 1
-            reward += 10
+            reward = 20
             self._place_food()
         else:
             self.snake.pop()
@@ -99,7 +99,7 @@ class SnakeGameML:
         self._update_ui()
         self.clock.tick(SPEED)
         # 6. return game over and score
-        return game_over, self.score
+        return reward, game_over, self.score
     
     def is_collision(self, point = None):
         # hits boundary
@@ -139,8 +139,11 @@ class SnakeGameML:
 
         if actiondir == 0:
             direction = self.direction
-        else:
-            direction = direction_list[ (current_dir + (-1**actiondir)) % 4 ]
+        elif actiondir == 1:
+            direction = direction_list[ (current_dir - 1) % 4 ]
+        elif actiondir == 2:
+            direction = direction_list[(current_dir + 1) % 4]
+
 
 
 

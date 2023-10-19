@@ -3,6 +3,8 @@ import random
 import numpy as np
 from game import SnakeGameML, Direction, Point
 from collections import deque
+from model import Linear_Net, Trainer
+from plotter import plot
 
 #TODO:
 #Remember Function
@@ -12,7 +14,7 @@ from collections import deque
 #Plotter
 
 
-MAX_MEMORY = 100000
+MAX_MEMORY = 1000000
 BATCH_SIZE = 1000
 
 LR = 0.001
@@ -24,8 +26,8 @@ class Agent:
         self.epsilon = 0  # Randomness
         self.gamma = 0 # discount rate
         self.memory = deque(maxlen=MAX_MEMORY)
-        self.model = None #TODO
-        self.trainer = None #TODO
+        self.model = Linear_Net(11, 256, 3)  # Hidden Size can change
+        self.trainer = Trainer(self.model, linreg=LR, gamma=self.gamma)
 
     def get_state(self, game):
         head = game.snake[0]
@@ -50,10 +52,10 @@ class Agent:
             leftD, aheadD, rightD = danger_list[1:4]
         elif game.direction == Direction.DOWN:
             left_dir, right_dir, up_dir, down_dir = [False, False, False, True]
-            leftD, aheadD, rightD = danger_list[-1:] + danger_list[:2]
+            leftD, aheadD, rightD = danger_list[-2:] + danger_list[:1]
         else: # Left
             left_dir, right_dir, up_dir, down_dir = [True, False, False, False]
-            leftD, aheadD, rightD = danger_list[-2:] + danger_list[:1]
+            leftD, aheadD, rightD = danger_list[-1:] + danger_list[:2]
 
         state = [
 
@@ -96,7 +98,7 @@ class Agent:
 
     def get_action(self, state):
         # Random Move: Explore vs Exploit tradeoff Read Up More
-        self.epsilon = 80 - self.n_games #TODO:Change
+        self.epsilon = 80 - self.game_iter #TODO:Change
         final_move = [0,0,0]
 
         #Setting random move based on epsilon
@@ -105,7 +107,7 @@ class Agent:
             final_move[move] = 1
         else:
             state0 = torch.tensor(state, dtype=torch.float)
-            pred = self.model.predict(state0)
+            pred = self.model(state0)
             move = torch.argmax(pred).item()
             final_move[move] = 1
 
@@ -113,7 +115,7 @@ class Agent:
 
 def train():
     plot_scores = []
-    plot_mean_score = []
+    plot_mean_scores = []
     total_score = 0
     record = 0
     agent = Agent()
@@ -139,9 +141,16 @@ def train():
 
             if score > record:
                 record = score
+                agent.model.save()
+
             print('Game: ', agent.game_iter, 'Score: ', score, 'Record: ', record)
 
-            #TODO: plot
+            plot_scores.append(score)
+            total_score += score
+            mean_score = total_score / agent.game_iter
+            plot_mean_scores.append(mean_score)
+            print("Plotted")
+            plot(plot_scores, plot_mean_scores)
 
 
 if __name__ == '__main__':
